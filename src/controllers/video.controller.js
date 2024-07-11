@@ -24,6 +24,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
     }
 
     // aggregation pipeline for the same
+    // NOTE: we can't use await here because we want the object of aggregate and not the populated data, as aggregatePaginate
+    // accepts object of aggregation pipeline
     let videoAggregate
     try {
         videoAggregate = Video.aggregate([
@@ -74,6 +76,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         limit: parseInt(limit),
     }
 
+    // aggregate pagination on created aggregate pipeline object
     Video.aggregatePaginate(videoAggregate, options)
     .then(result => {
         if (result?.videos?.length === 0 && userId) {
@@ -89,7 +92,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         console.log("error ::", error)
         throw new ApiError(500, error?.message || "Internal server error in video aggregate Paginate")
     })
-
+    
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
