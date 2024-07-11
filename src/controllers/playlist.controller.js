@@ -9,11 +9,11 @@ const createPlaylist = asyncHandler(async (req, res) => {
     // TODO: create playlist
     
     // get title and description from req->body and userId from req->user
+    const userId = req.user?._id
     const {name, description} = req.body
     if([name, description].some((field) => field.trim() === "")){
         throw new ApiError(400, "All fields are required")
     }
-    const userId = req.user?._id
 
     // create playlist
     const playlist = await Playlist.create({
@@ -46,6 +46,29 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
         {
             $match: {
                 owner: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            avatar: 1
+                        }
+                    },
+                ]
+            }
+        },
+        {
+            $addFields: {
+                owner: {
+                    $first: "$owner"
+                }
             }
         }
     ])
