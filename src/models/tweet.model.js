@@ -3,11 +3,11 @@ import mongoose, {Schema, model} from "mongoose";
 const tweetSchema = new Schema(
     {
         content: {
-            typeof: String,
-            required: true,
+            type: String,
+            required: true
         },
         owner: {
-            types: Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "User"
         }
     },

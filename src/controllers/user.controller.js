@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import { deleteFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
@@ -185,7 +185,7 @@ const refreshAccessToken = asyncHandler( async(req, res) => {
         }
     
         // generate new tokens
-        const { accessToken, refreshToken } = generateAccessandRefreshToken(user._id)
+        const { accessToken, refreshToken } = await generateAccessandRefreshToken(user._id)
     
         const options = {
             httpOnly: true,
@@ -194,8 +194,8 @@ const refreshAccessToken = asyncHandler( async(req, res) => {
     
         return res
         .status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
         .json(
             new ApiResponse(
                 200, 
@@ -213,10 +213,10 @@ const changeCurrentPassword = asyncHandler( async(req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     // check if old password is correct or not
-    const user = User.findById(req?.user._id)
-    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+    const user = await User.findById(req?.user._id)
+    const isPasswordCorrectResult = await user.isPasswordCorrect(oldPassword);
 
-    if(!isPasswordCorrect){
+    if(!isPasswordCorrectResult){
         throw new ApiError(400, "Invalid old password")
     }
 
@@ -268,6 +268,11 @@ const updateUserAvatar = asyncHandler( async(req, res) => {
     }
 
     // delete old file
+    const oldUser = await User.findById(req.user?._id).select("avatar")
+    const resultAvatar = deleteFromCloudinary(oldUser.avatar)
+    if(!resultAvatar){
+        throw new ApiError(500, "Internal Server error (Cloudinary) : try again")
+    }
 
     // upload on cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath)
@@ -301,6 +306,11 @@ const updateUserCoverImage = asyncHandler( async(req, res) => {
     }
 
     // delete old file
+    const oldUser = await User.findById(req.user?._id).select("coverImage")
+    const resultCoverImage = deleteFromCloudinary(oldUser.coverImage)
+    if(!resultCoverImage){
+        throw new ApiError(500, "Internal Server error (Cloudinary) : try again")
+    }
 
     // upload on cloudinary
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)

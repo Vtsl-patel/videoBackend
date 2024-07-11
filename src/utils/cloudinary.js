@@ -23,5 +23,28 @@ const uploadOnCloudinary = async (localFilePath) => {
     }
 }
 
-export { uploadOnCloudinary }
+const deleteFromCloudinary = async (publicUrl, resource = 'image') => {
+    try {
+        // Ensure publicUrl is a string
+        if (typeof publicUrl !== 'string') {
+          throw new TypeError('Expected a string for publicUrl');
+        }
+        
+        const urlParts = publicUrl.split('/');
+        const publicIdWithExtension = urlParts[urlParts.length - 1]; 
+        const publicId = publicIdWithExtension.split('.')[0]; 
+    
+        // Delete the file using the public ID
+        const result = await cloudinary.uploader.destroy(publicId, { resource_type: resource});
+
+        console.log(publicId);
+        console.log('Delete result:', result);
+        return result;
+      } catch (error) {
+        console.error('Error deleting file from Cloudinary:', error);
+        throw error;
+      }
+}
+
+export { uploadOnCloudinary, deleteFromCloudinary }
     
