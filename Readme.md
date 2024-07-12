@@ -46,94 +46,83 @@ This project serves as the backend for a YouTube clone application. It provides 
    ```
 
 ## API Endpoints
-- **POST /register**: Register a new user.
-- **POST /login**: Login an existing user.
-- **POST /logout**: Logout the currently logged-in user.
-- **POST /refresh-token**: Refresh access token using refresh token.
-- **POST /change-password**: Change the current user's password.
-- **GET /current-user**: Get details of the current user.
-- **PATCH /update-account**: Update account details (full name, email).
-- **PATCH /avatar**: Update user avatar.
-- **PATCH /cover-image**: Update user cover image.
-- **GET /channel/:username**: Get profile details of a user's channel.
-- **GET /history**: Get watch history of the current user.
 
-Certainly! Here's an overview of how the user controller in this project works:
+### User Routes
+- `POST /register` - Register a new user
+- `POST /login` - Login an existing user
+- `POST /logout` - Logout the currently logged-in user
+- `POST /refresh-token` - Refresh access token using refresh token
+- `POST /change-password` - Change the current user's password
+- `GET /current-user` - Get details of the current user
+- `PATCH /update-account` - Update account details (full name, email)
+- `PATCH /avatar` - Update user avatar
+- `PATCH /cover-image` - Update user cover image
+- `GET /channel/:username` - Get profile details of a user's channel
+- `GET /history` - Get watch history of the current user
 
-## User Controller Overview
+### Video Routes
+- `GET /videos` - Get all videos
+- `POST /videos` - Publish a video (includes video file and thumbnail upload)
+- `GET /videos/:videoId` - Get a video by ID
+- `DELETE /videos/:videoId` - Delete a video
+- `PATCH /videos/:videoId` - Update a video (includes thumbnail upload)
+- `PATCH /videos/toggle/publish/:videoId` - Toggle publish status of a video
 
-1. **Registration (`registerUser`)**:
-   - Handles the registration process when a new user signs up.
-   - Validates incoming user data such as full name, username, email, and password.
-   - Checks if the username or email already exists in the database to prevent duplicates.
-   - Handles file uploads for user avatar and cover image using **Multer** middleware.
-   - Utilizes **Cloudinary** to upload these images to the cloud.
-   - Creates a new user object in the database with hashed passwords and uploaded image URLs.
-   - Returns a response indicating successful registration or appropriate error messages.
+### Playlist Routes
+- `POST /playlists` - Create a playlist
+- `GET /playlists/:playlistId` - Get a playlist by ID
+- `PATCH /playlists/:playlistId` - Update a playlist
+- `DELETE /playlists/:playlistId` - Delete a playlist
+- `PATCH /playlists/add/:videoId/:playlistId` - Add a video to a playlist
+- `PATCH /playlists/remove/:videoId/:playlistId` - Remove a video from a playlist
+- `GET /playlists/user/:userId` - Get playlists of a user
 
-2. **Login (`loginUser`)**:
-   - Manages the login process when an existing user attempts to log in.
-   - Validates the user's credentials (username/email and password).
-   - If credentials are valid, generates both access and refresh tokens for the user.
-   - Stores the refresh token in the database for later use.
-   - Sends the access token as an HTTP-only cookie to the client for authentication.
-   - Returns a response containing the logged-in user's details along with tokens.
+### Subscription Routes
+- `GET /subscriptions/c/:channelId` - Get subscribed channels
+- `POST /subscriptions/c/:channelId` - Toggle subscription status
+- `GET /subscriptions/u/:channelId` - Get subscribers of a user channel
 
-3. **Logout (`logoutUser`)**:
-   - Handles the logout functionality when a user decides to log out.
-   - Clears the refresh token from the database associated with the user.
-   - Clears both access and refresh tokens from the client-side cookies.
-   - Returns a response confirming successful logout.
+### Likes Routes
+- `POST /likes/toggle/v/:videoId` - Toggle like status on a video
+- `POST /likes/toggle/c/:commentId` - Toggle like status on a comment
+- `POST /likes/toggle/t/:tweetId` - Toggle like status on a tweet
+- `GET /likes/videos` - Get liked videos
 
-4. **Token Refresh (`refreshAccessToken`)**:
-   - Facilitates the token refresh process using the refresh token.
-   - Validates the incoming refresh token and retrieves the user associated with it.
-   - Generates new access and refresh tokens if the refresh token is valid and matches the stored token.
-   - Sends the new access token as a replacement cookie after clearing the old ones.
-   - Returns a response with the refreshed access token or appropriate error messages.
+### Comment Routes
+- `GET /comments/:videoId` - Get comments for a video
+- `POST /comments/:videoId` - Add a comment to a video
+- `DELETE /comments/c/:commentId` - Delete a comment
+- `PATCH /comments/c/:commentId` - Update a comment
 
-5. **Password Change (`changeCurrentPassword`)**:
-   - Manages the process for changing a user's current password.
-   - Validates the old password provided by the user.
-   - If valid, updates the password with the new one provided.
-   - Returns a response indicating successful password change or errors if the old password is incorrect.
+### Tweet Routes
+- `POST /tweets` - Create a tweet
+- `GET /tweets/user/:userId` - Get tweets of a user
+- `PATCH /tweets/:tweetId` - Update a tweet
+- `DELETE /tweets/:tweetId` - Delete a tweet
 
-6. **Current User Details (`getCurrentUser`)**:
-   - Retrieves and returns details of the currently logged-in user.
-   - Excludes sensitive information like passwords and refresh tokens from the response.
-   - Returns a response with the current user's details.
-
-7. **Update Account Details (`updateAccountDetails`)**:
-   - Handles updating a user's account details such as full name and email.
-   - Validates incoming data to ensure all required fields are provided.
-   - Updates the user's details in the database.
-   - Returns a response confirming successful update with the updated user details.
-
-8. **Update User Avatar (`updateUserAvatar`)** and **Update User Cover Image (`updateUserCoverImage`)**:
-   - Manages the process of updating a user's avatar or cover image.
-   - Handles file uploads using Multer middleware.
-   - Utilizes Cloudinary to upload the images to the cloud and update the URLs in the user's profile.
-   - Returns a response confirming successful image update with the updated user details.
-
-9. **Get User Channel Profile (`getUserChannelProfile`)**:
-   - Retrieves and returns the profile details of a user's channel based on the provided username.
-   - Utilizes MongoDB aggregation pipelines to fetch additional details such as subscriber count and subscription status.
-   - Returns a response with the fetched channel details.
-
-10. **Get Watch History (`getWatchHistory`)**:
-    - Retrieves and returns the watch history of the currently logged-in user.
-    - Uses MongoDB aggregation to populate video details in the watch history.
-    - Returns a response with the user's watch history.
+### Dashboard Routes
+- `GET /dashboard/stats` - Get channel statistics
+- `GET /dashboard/videos` - Get videos of the channel
 
 ## Conclusion
-The user controller manages various aspects of user authentication, profile management, and content interaction within the YouTube clone backend. It utilizes robust libraries and services like JWT for token management, bcrypt for password hashing, Cloudinary for image management, and MongoDB for data storage. Each function ensures data integrity, security, and efficient user interaction, making the backend robust and scalable for a YouTube-like platform.
+
+The backend of the YouTube clone is organized into multiple controllers, each managing specific aspects of the application to ensure a seamless user experience. 
+
+- **User Controller**: Handles user authentication, profile management, and avatar/cover image updates. It leverages robust libraries and services such as JWT for token management, bcrypt for password hashing, Cloudinary for image management, and MongoDB for data storage.
+- **Comment Controller**: Manages commenting functionality, allowing users to add, update, and delete comments on videos.
+- **Dashboard Controller**: Provides endpoints for retrieving channel statistics and videos, helping users manage their content and understand their audience.
+- **Likes Controller**: Facilitates toggling of like status on videos, comments, and tweets, and retrieving liked videos, enhancing user interaction.
+- **Playlist Controller**: Allows users to create, update, and delete playlists, and manage videos within playlists, offering a personalized viewing experience.
+- **Subscription Controller**: Manages channel subscriptions, enabling users to subscribe to channels and retrieve their subscribed channels and subscribers.
+- **Tweet Controller**: Provides endpoints for creating, updating, and deleting tweets, supporting additional user interaction.
+- **Video Controller**: Handles video publishing, retrieval, updating, and deletion, including managing video files and thumbnails.
+
+Each controller is designed to ensure data integrity, security, and efficient user interaction. This modular approach makes the backend robust, scalable, and maintainable, capable of supporting a YouTube-like platform effectively.
 
 ## Contribution
 Contributions are welcome! If you find any bugs or want to suggest enhancements, please open an issue or submit a pull request.
 
 ## License
 This project is licensed under nothing, lol feel free to use it for educational purposes
-
-### PROJECT IS STILL UNDER DEVELOPMENT PHASE WILL BE COMPLETED SOON
 
 ---
