@@ -60,7 +60,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 
     // get channelId from req->params
     const { channelId } = req.params
-    if(!channelId){
+    if(!channelId.trim()){
         throw new ApiError(400, "Invalid channelId")
     }
 
@@ -117,8 +117,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     // get userId or subscriberId from req->params
     const { channelId } = req.params
     const subscriberId = channelId
-    console.log(subscriberId);
-    if(!subscriberId){
+    if(!subscriberId.trim()){
         throw new ApiError(400, "Inavlid userId")
     }
 
