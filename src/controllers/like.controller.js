@@ -40,7 +40,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
             new ApiResponse(200, videoLiked, "Video liked successfully")
         )
     } else {
-        const videoUnliked = await Like.findByIdAndDelete(videoLike._id)
+        const videoUnliked = await Like.findByIdAndDelete(videoLike[0]._id)
         if(!videoUnliked){
             throw new ApiError(400, "Inavlid videoId")
         }
@@ -89,7 +89,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
             new ApiResponse(200, commentLiked, "comment liked successfully")
         )
     } else {
-        const commentUnliked = await Like.findByIdAndDelete(commentLike._id)
+        const commentUnliked = await Like.findByIdAndDelete(commentLike[0]._id)
         if(!commentUnliked){
             throw new ApiError(400, "Inavlid commentId")
         }
@@ -138,7 +138,7 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
             new ApiResponse(200, tweetLiked, "tweet liked successfully")
         )
     } else {
-        const tweetUnliked = await Like.findByIdAndDelete(tweetLike._id)
+        const tweetUnliked = await Like.findByIdAndDelete(tweetLike[0]._id)
         if(!tweetUnliked){
             throw new ApiError(400, "Inavlid tweetId")
         }
