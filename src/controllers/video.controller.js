@@ -163,7 +163,17 @@ const getVideoById = asyncHandler(async (req, res) => {
     }
 
     // get video from database using videoId
-    const video = await Video.findById(videoId)
+    const video = await Video.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(videoId),
+        {
+            $inc: {
+                views: 1
+            }
+        },
+        {
+            new: true
+        }
+    )
     if(!video){
         throw new ApiError(400, "Video doesn't exist")
     }
