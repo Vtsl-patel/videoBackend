@@ -156,7 +156,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     // TODO: get video by id
     
-    // get videoId from req->params
+    // get videoId from req->params and userId from req->user
+    const userId = req.user?._id
     const { videoId } = req.params
     if(!videoId.trim()){
         throw new ApiError(400, "Video doesn't exist")
@@ -176,6 +177,22 @@ const getVideoById = asyncHandler(async (req, res) => {
     )
     if(!video){
         throw new ApiError(400, "Video doesn't exist")
+    }
+
+    // push video to user WatchHistory
+    const user = await User.findByIdAndUpdate(
+        userId,
+        {
+            $push: {
+                watchHistory: new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        {
+            new: true
+        }
+    )
+    if(!user){
+        throw new ApiError(500, "Internal Server error try again later")
     }
 
     return res
