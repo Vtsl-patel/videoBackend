@@ -260,8 +260,16 @@ const updateVideo = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
     // TODO: delete video
 
-    // get videoId from req->params
+    // get videoId from req->params and userId from req->user
+    const userId = req.user?._id
     const { videoId } = req.params
+
+    // get video owner from db
+    const videoOwner = await Video.findById(videoId)
+
+    if(videoOwner.owner.toString() !== userId.toString()){
+        throw new ApiError(400, "You are not authorised to delete the")
+    }
     
     // delete video file from db
     const video = await Video.findByIdAndDelete(videoId) 
