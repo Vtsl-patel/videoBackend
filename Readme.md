@@ -1,7 +1,7 @@
-# YouTube Clone Backend
+# Video Backend
 
 ## Description
-This project serves as the backend for a YouTube clone application. It provides APIs for user authentication, video management, user profiles, subscriptions, and more.
+This project serves as the backend for a Video Platform similar to Youtube. It provides APIs for user authentication, video management, user profiles, subscriptions, and more.
 
 ## Technologies Used
 - **Node.js**: JavaScript runtime environment
@@ -19,7 +19,7 @@ This project serves as the backend for a YouTube clone application. It provides 
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Vtsl-patel/youtubeBackend.git
+   git clone https://github.com/Vtsl-patel/videoBackend.git
    cd youtubeBackend
    ```
 
